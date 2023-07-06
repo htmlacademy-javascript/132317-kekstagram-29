@@ -23,7 +23,7 @@ function isPalindrome (string) {
 }
 
 function getDigitsFromString (string) {
-  const normalizedString = string.toString().replaceAll(' ','').toLowerCase();
+  const normalizedString = string.toString();
 
   let numbersString = '';
 
@@ -41,3 +41,7 @@ function getDigitsFromString (string) {
 
   return Number(numbersString);
 }
+
+checkStringLength ();
+isPalindrome ();
+getDigitsFromString();
