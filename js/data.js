@@ -69,3 +69,6 @@ const getPictures = () => Array.from(
 );
 
 getPictures ();
+console.log(getPictures ());
+
+export {getPictures};
