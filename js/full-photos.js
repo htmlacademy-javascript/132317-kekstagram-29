@@ -1,10 +1,16 @@
+const COMMENTS_PER_PORTION = 5;
+
 const bigPictureElement = document.querySelector('.big-picture');
 const commentCountElement = bigPictureElement.querySelector('.comments-count');
+//const commentShownCounElement = bigPictureElement.querySelector('.')
 const commentListElement = bigPictureElement.querySelector('.social__comments');
 const commentsLoaderElement = bigPictureElement.querySelector('.comments-loader');
 const bodyElement = document.querySelector('body');
 const cancelButtonElement = bigPictureElement.querySelector('.big-picture__cancel');
 const commentElement = document.querySelector('#modal-comment').content.querySelector('.social__comment');
+
+let commentsShown = 0;
+let comments = [];
 
 
 const createComment = ({avatar, name, message}) => {
@@ -17,22 +23,34 @@ const createComment = ({avatar, name, message}) => {
   return comment;
 };
 
-const renderComments = (comments) => {
-  commentListElement.innerHTML = '';
+const renderComments = () => {
+  commentsShown += COMMENTS_PER_PORTION;
+
+  if (commentsShown >= comments.length) {
+    commentsLoaderElement.classList.add('hidden');
+    commentsShown = comments.length;
+  } else {
+    commentsLoaderElement.classList.remove('hidden');
+  }
 
   const fragment = document.createDocumentFragment();
-  comments.forEach((item) => {
-    const comment = createComment(item);
-    fragment.append(comment);
-  });
 
+  for (let i = 0; i < commentsShown; i++) {
+    const comment = createComment(comments[i]);
+    fragment.append(comment);
+  }
+
+  commentListElement.innerHTML = '';
   commentListElement.append(fragment);
+  //commentShosnCountElement.textContent = commentsShown;
+  commentCountElement.textContent = comments.length;
 };
 
 const hideBigPicture = () => {
   bigPictureElement.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   document.removeEventListener('keydown', onDocumentKeydown);
+  commentsShown = 0;
 };
 
 function onDocumentKeydown(evt) {
@@ -45,6 +63,8 @@ function onDocumentKeydown(evt) {
 const onCancelButtonClick = () => {
   hideBigPicture();
 };
+
+const onCommentsLoaderClick = () => renderComments();
 
 const renderPictureDetails = ({url, likes, description}) => {
   bigPictureElement.querySelector('.big-picture__img img').src = url;
@@ -61,9 +81,13 @@ function showBigPicture (data) {
   document.addEventListener('keydown', onDocumentKeydown);
 
   renderPictureDetails(data);
-  renderComments(data.comments);
+  comments = data.comments;
+  if (comments.length > 0) {
+    renderComments();
+  }
 }
 
 cancelButtonElement.addEventListener('click', onCancelButtonClick);
+commentsLoaderElement.addEventListener('click', onCommentsLoaderClick);
 
 export {showBigPicture};
