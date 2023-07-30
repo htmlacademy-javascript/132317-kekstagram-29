@@ -1,3 +1,5 @@
+import {showBigPicture} from './full-photos.js';
+
 const template = document.querySelector('#picture').content.querySelector('.picture');
 const picturesList = document.querySelector('.pictures');
 
@@ -15,8 +17,14 @@ function createPictureItem ({url, description, likes, comments}) {
 function fillingListPictures (items) {
   const listPictureFragment = document.createDocumentFragment();
 
-  items.forEach((itmem) => {
-    const picture = createPictureItem(itmem);
+  items.forEach((item) => {
+    const picture = createPictureItem(item);
+
+    picture.addEventListener('click', (evt) => {
+      evt.preventDefault();
+      showBigPicture(item);
+    });
+
     listPictureFragment.append(picture);
   });
 

@@ -41,7 +41,3 @@ function getDigitsFromString (string) {
 
   return Number(numbersString);
 }
-
-checkStringLength ();
-isPalindrome ();
-getDigitsFromString();
