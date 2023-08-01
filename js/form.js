@@ -1,3 +1,9 @@
+import {
+  init as initEffects,
+  reset as resetEffects
+} from './effects.js';
+import {resetScale} from './scale.js';
+
 const VALID_SYMBOLS = /^#[a-zа-яё0-9]{1,19}$/i;
 const MAX_HASHTEG_COUNT = 5;
 const MAX_COMMENT_LENGTH = 140;
@@ -88,7 +94,8 @@ const isFocusField = (field) => document.activeElement === field;
 const closeFormModal = () => {
   form.reset();
   pristine.reset();
-
+  resetScale();
+  resetEffects();
   overlayForm.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   document.removeEventListener('keydown', onDocumentKeydown);
@@ -100,6 +107,7 @@ const openFormModal = () => {
   bodyElement.classList.add('modal-open');
   document.addEventListener('keydown', onDocumentKeydown);
   closeForm.addEventListener('click', closeFormModal);
+  initEffects();
 };
 
 //переименование функции по тсандартам обработчика
