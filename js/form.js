@@ -128,4 +128,4 @@ const openModalFormScript = () => {
   uploadFile.addEventListener('change', onOpenFormModal);
 };
 
-export {openModalFormScript};
+export {openModalFormScript, onDocumentKeydown};
