@@ -1,18 +1,22 @@
-//import {getPictures} from './data.js';
-import {fillingListPictures} from './miniatures.js';
-import './full-photos.js';
-import {openModalFormScript} from './form.js';
-import {getData} from './api.js';
-import {showAlert} from './utils.js';
+import {GALLERY} from './html-elements.js';
+import {fetchData} from './network.js';
+import {showAlert} from './util.js';
+import {render as renderGallery} from './gallery.js';
+import {open as openFullPicture} from './full-picture-modal.js';
+import {handleClick as handleFiltersClick} from './filters-manager.js';
+import {init as initUploadingPicture} from './uploading-picture-manager.js';
 
-
-openModalFormScript();
 
 try {
-  const data = await getData();
-  fillingListPictures(data);
+  const picturesData = await fetchData();
+  renderGallery(picturesData);
+
+  const onGalleryClick = (evt) => openFullPicture(evt, picturesData);
+  GALLERY.root.addEventListener('click', onGalleryClick);
+
+  handleFiltersClick(renderGallery, picturesData);
 } catch (err) {
-  showAlert(err.massage);
+  showAlert(err.message);
 }
 
-// module12-task2
+initUploadingPicture();
