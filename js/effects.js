@@ -1,97 +1,123 @@
-const sliderEffects = {
-  chrome: {
-    name: 'grayscale',
-    min: 0,
-    max: 1,
-    step: 0.1,
-    unit: '',
+import {NEW_PICTURE_FORM} from './html-elements.js';
+
+const EffectsOptions = {
+  NONE: {
+    sliderOptions: {
+      range: {
+        min: 0,
+        max: 0,
+      },
+      start: 0,
+      step: 0,
+    },
+    filterOptions: () => 'none',
   },
-  sepia: {
-    name: 'sepia',
-    min: 0,
-    max: 1,
-    step: 0.1,
-    unit: '',
+  CHROME: {
+    sliderOptions: {
+      range: {
+        min: 0,
+        max: 1,
+      },
+      start: 1,
+      step: 0.1,
+    },
+    filterOptions: (inputValue) => `grayscale(${inputValue})`,
   },
-  marvin: {
-    name: 'invert',
-    min: 0,
-    max: 100,
-    step: 1,
-    unit: '%',
+  SEPIA: {
+    sliderOptions: {
+      range: {
+        min: 0,
+        max: 1,
+      },
+      start: 1,
+      step: 0.1,
+    },
+    filterOptions: (inputValue) => `sepia(${inputValue})`,
   },
-  phobos: {
-    name: 'blur',
-    min: 0,
-    max: 3,
-    step: 0.1,
-    unit: 'px',
+  MARVIN: {
+    sliderOptions: {
+      range: {
+        min: 0,
+        max: 100,
+      },
+      start: 100,
+      step: 1,
+    },
+    filterOptions: (inputValue) => `invert(${inputValue}%)`,
   },
-  heat: {
-    name: 'brightness',
-    min: 1,
-    max: 3,
-    step: 0.1,
-    unit: '',
+  PHOBOS: {
+    sliderOptions: {
+      range: {
+        min: 0,
+        max: 3,
+      },
+      start: 3,
+      step: 0.1,
+    },
+    filterOptions: (inputValue) => `blur(${inputValue}px)`,
+  },
+  HEAT: {
+    sliderOptions: {
+      range: {
+        min: 1,
+        max: 3,
+      },
+      start: 3,
+      step: 0.1,
+    },
+    filterOptions: (inputValue) => `brightness(${inputValue})`,
   },
 };
 
-const modalElement = document.querySelector('.img-upload');
-const imageElement = modalElement.querySelector('.img-upload__preview img');
-const sliderContainerElement = modalElement.querySelector('.img-upload__effect-level');
-const sliderElement = modalElement.querySelector('.effect-level__slider');
-const effectValueElement = modalElement.querySelector('.effect-level__value');
-const sliderEffectsList = modalElement.querySelector('.effects__list');
+let chosenEffect;
 
-//функция по изменению фильтров слайдера
-const changeSliderFilters = (effect, value, unit = '') => {
-  effectValueElement.value = value;
-  imageElement.style.filter = `${effect}(${value}${unit})`;
+const resetEffects = () => {
+  NEW_PICTURE_FORM.sliderContainer.classList.add('hidden');
+  NEW_PICTURE_FORM.preview.style.filter = 'none';
+  NEW_PICTURE_FORM.defaultEffect.checked = true;
+  NEW_PICTURE_FORM.sliderInput.value = 0;
 };
 
-//функция отображения слайдера
-const showSlider = (effects) => {
-  sliderContainerElement.classList.remove('hidden');
-  noUiSlider.create(sliderElement, {
-    start: effects.max,
-    step: effects.step,
+const onEffectSelect = (evt) => {
+  if (evt.target.name !== 'effect') {
+    return;
+  }
+
+  chosenEffect = evt.target.value.toUpperCase();
+  const effect = EffectsOptions[chosenEffect];
+
+  if (chosenEffect === 'NONE') {
+    NEW_PICTURE_FORM.sliderContainer.classList.add('hidden');
+  } else {
+    NEW_PICTURE_FORM.sliderContainer.classList.remove('hidden');
+  }
+
+  NEW_PICTURE_FORM.slider.noUiSlider.updateOptions(effect.sliderOptions);
+};
+
+const init = () => {
+  resetEffects();
+
+  NEW_PICTURE_FORM.buttonsContainer.addEventListener('change', onEffectSelect);
+
+  noUiSlider.create(NEW_PICTURE_FORM.slider, {
+    ...EffectsOptions.NONE.sliderOptions,
     connect: 'lower',
-    range: {
-      min: effects.min,
-      max: effects.max
+    format: {
+      to: (value) => value.toFixed((Number.isInteger(value)) ? 0 : 1),
+      from: Number.parseFloat,
     },
   });
-  sliderElement.noUiSlider.on('update', () => {
-    const sliderValue = sliderElement.noUiSlider.get();
-    changeSliderFilters(effects.name, sliderValue, effects.unit);
+
+  NEW_PICTURE_FORM.slider.noUiSlider.on('update', () => {
+    NEW_PICTURE_FORM.sliderInput.value = NEW_PICTURE_FORM.slider.noUiSlider.get();
+    const effect = EffectsOptions[chosenEffect];
+
+    if (effect) {
+      NEW_PICTURE_FORM.preview.style.filter = effect.filterOptions(NEW_PICTURE_FORM.sliderInput.value);
+    }
+
   });
 };
 
-//сброс эффектов фильтра
-const resetSliderEffects = () => {
-  if (sliderElement.noUiSlider) {
-    sliderElement.noUiSlider.destroy();
-  }
-  sliderContainerElement.classList.add('hidden');
-  imageElement.style.filter = '';
-  effectValueElement.value = '';
-};
-
-const onChangeEffect = (evt) => {
-  resetSliderEffects();
-  const effects = sliderEffects[evt.target.value];
-  if (effects.name !== 'none') {
-    showSlider(effects);
-  }
-};
-
-//Функция для запуска работы кнопок масштабирования и слайдера
-const init = () => sliderEffectsList.addEventListener('change', onChangeEffect);
-
-//Функция возвращающая размер фото и значение фильтра по умолчанию
-const reset = () => {
-  resetSliderEffects();
-  sliderEffectsList.removeEventListener('change', onChangeEffect);
-};
-
-export {init, reset};
+export {init, resetEffects};
